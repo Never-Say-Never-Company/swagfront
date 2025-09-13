@@ -1,12 +1,37 @@
 <template>
-  <canvas ref="canvas"></canvas>
+  <div>
+    <Bar
+      id="stacked-bar-chart"
+      :options="chartOptions"
+      :data="chartData"
+    />
+  </div>
 </template>
 
 <script>
-import { Chart } from 'chart.js/auto'
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js'
+import { Bar } from 'vue-chartjs'
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+)
 
 export default {
-  name: 'StackedBarChart',
+  name: 'GraficoTempoProjetos',
+  components: { Bar },
   props: {
     chartData: {
       type: Object,
@@ -15,48 +40,40 @@ export default {
   },
   data() {
     return {
-      chart: null // Armazena a instância do gráfico
-    }
-  },
-  watch: {
-    chartData: {
-      handler(newData) {
-        if (this.chart) {
-          this.chart.data = newData
-          this.chart.update()
-        }
-      },
-      deep: true // Necessário para monitorar mudanças profundas no objeto
-    }
-  },
-  mounted() {
-    const ctx = this.$refs.canvas.getContext('2d')
-    
-    this.chart = new Chart(ctx, {
-      type: 'bar',
-      data: this.chartData,
-      options: {
+      chartOptions: {
         responsive: true,
+        maintainAspectRatio: false,
         indexAxis: 'y',
-        plugins: {
-          legend: {
-            position: 'top'
-          }
-        },
         scales: {
           x: {
-            stacked: true
+            stacked: true,
           },
           y: {
-            stacked: true
+            stacked: true,
+            barPercentage: 0.8, 
+            categoryPercentage: 0.7
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                if (context.parsed.x !== null) {
+                  label += new Intl.NumberFormat('pt-BR', { style: 'decimal' }).format(context.parsed.x) + ' min';
+                }
+                return label;
+              }
+            }
+          },
+          legend: {
+            position: 'bottom',
           }
         }
       }
-    })
-  },
-  beforeUnmount() {
-    if (this.chart) {
-      this.chart.destroy()
     }
   }
 }

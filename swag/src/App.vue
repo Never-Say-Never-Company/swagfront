@@ -7,11 +7,16 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <img 
+      src="./assets/swag.png"  alt="Imagem Fixa" 
+      class="fixed-bottom-image"
+    >
   </v-app>
 </template>
 
 <script>
-import ProjectTimeCard from './components/metrics/ProjectTimeCard.vue'; // Ajuste o caminho conforme a sua estrutura de pastas
+import ProjectTimeCard from './components/metrics/ProjectTimeCard.vue';
 
 export default {
   name: 'App',
@@ -20,3 +25,25 @@ export default {
   }
 }
 </script>
+
+<style>
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; 
+}
+
+.fixed-bottom-image {
+  position: fixed; 
+  bottom: 0;       
+  right: 0;       
+  width: 150px;   
+  height: auto;    
+  z-index: 1000;   
+  padding: 0;      
+  margin: 0;      
+  display: block; 
+  
+}
+</style>

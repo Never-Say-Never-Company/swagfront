@@ -1,5 +1,12 @@
 <template>
-  <v-card outlined elevation="2" rounded="lg" class="pa-4 mt-4" style="position: relative;">
+  <v-card 
+    outlined 
+    elevation="2" 
+    rounded="lg" 
+    class="pa-4 mt-4" 
+    style="position: relative;"
+    min-height="300px"
+  >
     
     <v-overlay :model-value="loading" class="align-center justify-center" contained>
       <v-progress-circular
@@ -17,7 +24,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(64, 1, 1, 0.9);
+        background-color: rgba(64, 1, 1, 0.96);
         z-index: 10;
         padding: 32px;
         display: flex;
@@ -39,22 +46,7 @@
             ></v-select>
             
             <v-row no-gutters class="mt-2">
-              <v-col class="d-flex justify-start" cols="4">
                 Intervalo de datas buscado
-              </v-col>
-              <v-col class="text-grey-lighten-1" cols="8">
-                <v-fade-transition leave-absolute>
-                  <span v-if="expanded">Selecione um intervalo de datas</span>
-                  <v-row v-else no-gutters>
-                    <v-col class="d-flex justify-start" cols="6">
-                        Data Inicial: {{ trip.start || 'Não Selecionado' }}
-                    </v-col>
-                    <v-col class="d-flex justify-start" cols="6">
-                      Data Final: {{ trip.end || 'Não Selecionado' }}
-                    </v-col>
-                  </v-row>
-                </v-fade-transition>
-              </v-col>
             </v-row>
             
             <v-text-field
@@ -77,6 +69,11 @@
       </v-container>
       
       <div class="d-flex justify-center mt-4">
+       <v-btn @click="overlay = false" color="secondy" class="ma-2" variant="flat">
+            <v-icon start>mdi-close</v-icon>
+            Cancelar
+        </v-btn>
+
         <v-btn @click="applyFilter" color="primary" class="ma-2" variant="flat">
           <v-icon left>mdi-filter</v-icon>
           Filtrar
