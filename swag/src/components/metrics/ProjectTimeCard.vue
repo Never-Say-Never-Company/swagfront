@@ -3,7 +3,7 @@
     outlined 
     elevation="2" 
     rounded="lg" 
-    class="pa-4 mt-4" 
+    class="pa-4" 
     style="position: relative;"
     min-height="300px"
   >
