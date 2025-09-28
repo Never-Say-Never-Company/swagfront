@@ -8,12 +8,11 @@
     <v-navigation-drawer v-model="drawer" app>
       <v-list dense>
         <v-list-item link @click="openDialog">
-          <v-list-item-icon>
+          <template v-slot:prepend>
             <v-icon color="#D97F77">mdi-tools</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title class="#D97F77--text">Configurar Conexão</v-list-item-title>
-          </v-list-item-content>
+          </template>
+          
+          <v-list-item-title class="#D97F77--text">Configurar Conexão</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -28,6 +27,13 @@
             <IssuesPerProjectChart />
           </v-col>
         </v-row>
+        
+        <v-row justify="start">
+          <v-col cols="12">
+            <DevelopersAnalysisTable />
+          </v-col>
+        </v-row>
+        
       </v-container>
     </v-main>
 
@@ -82,13 +88,15 @@
 <script>
 import axios from 'axios';
 import ProjectTimeCard from './components/metrics/ProjectTimeCard.vue';
-import IssuesPerProjectChart from './components/metrics/IssuesPerProjectChart.vue'; // Importe o novo componente
+import IssuesPerProjectChart from './components/metrics/IssuesPerProjectChart.vue';
+import DevelopersAnalysisTable from './components/metrics/DevelopersAnalysisTable.vue'; // <-- NOVO
 
 export default {
   name: 'App',
   components: {
     ProjectTimeCard,
-    IssuesPerProjectChart, // Adicione o novo componente aqui
+    IssuesPerProjectChart, 
+    DevelopersAnalysisTable, // <-- NOVO
   },
   data() {
     return {
