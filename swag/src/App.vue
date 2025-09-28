@@ -24,6 +24,9 @@
           <v-col cols="12" md="6">
             <ProjectTimeCard />
           </v-col>
+          <v-col cols="12" md="6">
+            <IssuesPerProjectChart />
+          </v-col>
         </v-row>
       </v-container>
     </v-main>
@@ -79,11 +82,13 @@
 <script>
 import axios from 'axios';
 import ProjectTimeCard from './components/metrics/ProjectTimeCard.vue';
+import IssuesPerProjectChart from './components/metrics/IssuesPerProjectChart.vue'; // Importe o novo componente
 
 export default {
   name: 'App',
   components: {
-    ProjectTimeCard
+    ProjectTimeCard,
+    IssuesPerProjectChart, // Adicione o novo componente aqui
   },
   data() {
     return {
