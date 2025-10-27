@@ -14,6 +14,14 @@
           
           <v-list-item-title class="#D97F77--text">Configurar Conexão</v-list-item-title>
         </v-list-item>
+        
+        <v-list-item link @click="devsModalOpen = true"> 
+          <template v-slot:prepend>
+            <v-icon color="#D97F77">mdi-account-cash</v-icon>
+          </template>
+          <v-list-item-title class="#D97F77--text">Valores/Hora Devs</v-list-item-title>
+        </v-list-item>
+
       </v-list>
     </v-navigation-drawer>
 
@@ -77,6 +85,10 @@
 
       </v-card>
     </v-dialog>
+    
+    <EditValueDevs
+      v-model="devsModalOpen"
+    />
 
     <img 
       src="./assets/swag.png"  alt="Imagem Fixa" 
@@ -89,19 +101,24 @@
 import axios from 'axios';
 import ProjectTimeCard from './components/metrics/ProjectTimeCard.vue';
 import IssuesPerProjectChart from './components/metrics/IssuesPerProjectChart.vue';
-import DevelopersAnalysisTable from './components/metrics/DevelopersAnalysisTable.vue'; // <-- NOVO
+import DevelopersAnalysisTable from './components/metrics/DevelopersAnalysisTable.vue'; 
+import EditValueDevs from './components/EditValueDevs.vue';
 
 export default {
   name: 'App',
   components: {
     ProjectTimeCard,
     IssuesPerProjectChart, 
-    DevelopersAnalysisTable, // <-- NOVO
+    DevelopersAnalysisTable, 
+    EditValueDevs,
   },
   data() {
     return {
       drawer: false,
       dialogOpen: false,
+      
+      devsModalOpen: false, 
+      
       usuarioinput: '',
       tokeninput: '',  
       usuario: '',

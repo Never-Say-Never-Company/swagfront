@@ -1,44 +1,81 @@
 <template>
-  <v-card :loading="loading" class="developers-analysis-table">
+  <v-card :loading="loadingProjects" class="developers-analysis-table">
     <v-card-title class="text-h5">Análise de Desenvolvedores</v-card-title>
     
     <v-card-text>
-      <v-data-table
-        :headers="headers"
-        :items="developersData"
-        :sort-by="[{ key: 'total_horas', order: 'desc' }]"
-        class="elevation-1"
-        :loading="loading"
-        loading-text="Carregando dados..."
-        no-data-text="Nenhum dado de desenvolvedor encontrado."
-      >
-        <template v-slot:item.total_horas="{ item }">
-          {{ formatHours(item.total_horas) }}
-        </template>
-      </v-data-table>
-      
-      <v-row class="mt-4" align="center">
-        <v-col cols="auto">
-          <v-btn
-            color="#D97F77"
-            dark
-            @click="fetchData"
-            :loading="loading"
-            :disabled="loading"
-            prepend-icon="mdi-refresh"
-          >
-            Atualizar Dados
-          </v-btn>
-        </v-col>
-        
-        <v-col v-if="lastUpdated">
-          <v-chip size="small" color="grey-lighten-4" class="text-grey-darken-3">
-            Última atualização: **{{ lastUpdated }}**
-          </v-chip>
+      <v-row class="mb-4">
+        <v-col cols="12" md="6">
+          <v-select
+            label="Selecione o Projeto"
+            :items="projects"
+            item-title="name"
+            item-value="id"
+            v-model="selectedProjectId"
+            :loading="loadingProjects"
+            :disabled="loadingProjects"
+            variant="outlined"
+            density="compact"
+            hide-details
+          ></v-select>
         </v-col>
       </v-row>
-      
-      <v-alert v-if="error" type="error" dense class="mt-4">{{ error }}</v-alert>
+
+      <div v-if="selectedProjectId">
+        <v-data-table
+          :headers="headers"
+          :items="developersData"
+          :sort-by="[{ key: 'custo_total', order: 'desc' }]"
+          class="elevation-1"
+          :loading="loadingData"
+          loading-text="Carregando dados..."
+          no-data-text="Nenhum dado de desenvolvedor encontrado para este projeto."
+        >
+          <template v-slot:item.total_horas="{ item }">
+            {{ formatHours(item.total_horas * 3600) }}
+          </template>
+          
+          <template v-slot:item.valor_por_hora="{ item }">
+            {{ formatCurrency(item.valor_por_hora) }}
+          </template>
+          
+          <template v-slot:item.custo_total="{ item }">
+            {{ formatCurrency(item.custo_total) }}
+          </template>
+        </v-data-table>
+        
+        <v-row class="mt-4" align="center">
+          <v-col cols="auto">
+            <v-btn
+              color="#D97F77"
+              dark
+              @click="fetchDevelopersData"
+              :loading="loadingData"
+              :disabled="loadingData"
+              prepend-icon="mdi-refresh"
+            >
+              Atualizar Dados
+            </v-btn>
+          </v-col>
+          
+          <v-col v-if="lastUpdated">
+            <v-chip size="small" color="grey-lighten-4" class="text-grey-darken-3">
+              Última atualização: **{{ lastUpdated }}**
+            </v-chip>
+          </v-col>
+        </v-row>
+        
+        <v-alert v-if="error" type="error" dense class="mt-4">{{ error }}</v-alert>
+      </div>
+
+      <v-alert
+        v-else-if="!loadingProjects"
+        type="info"
+        variant="tonal"
+        class="mt-4"
+        icon="mdi-information-outline"
+      >
+        Selecione um projeto para carregar a análise dos desenvolvedores.
+      </v-alert>
 
     </v-card-text>
   </v-card>
@@ -51,8 +88,11 @@ export default {
   name: 'DevelopersAnalysisTable',
   data() {
     return {
-      loading: false,
+      loadingData: false,
+      loadingProjects: false,
       error: null,
+      projects: [],
+      selectedProjectId: null,
       developersData: [],
       lastUpdated: null,
       apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
@@ -60,18 +100,51 @@ export default {
         { title: 'Desenvolvedor', key: 'nome' },
         { title: 'Issues Resolvidas', key: 'quantidade_issues', align: 'end' },
         { title: 'Total de Horas', key: 'total_horas', align: 'end' },
+        { title: 'Valor/Hora', key: 'valor_por_hora', align: 'end' },
+        { title: 'Custo Total (R$)', key: 'custo_total', align: 'end' },
       ],
     };
   },
+  watch: {
+    selectedProjectId(newProjectId, oldProjectId) {
+      if (newProjectId && newProjectId !== oldProjectId) {
+        this.fetchDevelopersData();
+      } else if (!newProjectId) {
+        this.developersData = [];
+        this.lastUpdated = null;
+        this.error = null;
+      }
+    }
+  },
   mounted() {
-    this.fetchData();
+    this.fetchProjects();
   },
   methods: {
-    async fetchData() {
-      this.loading = true;
+    async fetchProjects() {
+      this.loadingProjects = true;
       this.error = null;
       try {
-        const url = `${this.apiBaseUrl}/project/count_issues_by_user_and_total_hours`;
+        const url = `${this.apiBaseUrl}/project/list_projects`;
+        const response = await axios.get(url);
+        this.projects = response.data;
+      } catch (err) {
+        console.error("Erro ao buscar a lista de projetos:", err);
+        this.error = "Falha ao carregar a lista de projetos. Verifique a conexão com a API.";
+      } finally {
+        this.loadingProjects = false;
+      }
+    },
+    async fetchDevelopersData() {
+      if (!this.selectedProjectId) {
+        this.developersData = [];
+        this.lastUpdated = null;
+        return;
+      }
+
+      this.loadingData = true;
+      this.error = null;
+      try {
+        const url = `${this.apiBaseUrl}/project/count_issues_by_user_and_total_hours/${this.selectedProjectId}`;
         
         const response = await axios.get(url);
         
@@ -81,10 +154,10 @@ export default {
         
       } catch (err) {
         console.error("Erro ao buscar dados dos desenvolvedores:", err);
-        this.error = "Falha ao carregar os dados. Verifique a conexão com a API.";
+        this.error = "Falha ao carregar os dados dos desenvolvedores. Verifique a conexão com a API.";
         this.developersData = [];
       } finally {
-        this.loading = false;
+        this.loadingData = false;
       }
     },
     
@@ -98,6 +171,17 @@ export default {
       return `${hours}h ${minutes}m`;
     },
     
+    formatCurrency(value) {
+        if (value === null || value === undefined) return '-';
+
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    },
+
     updateLastUpdated() {
       const now = new Date();
       this.lastUpdated = now.toLocaleTimeString('pt-BR', {
